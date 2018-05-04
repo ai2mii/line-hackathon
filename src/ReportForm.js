@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
+import moment from 'moment'
 import axios from 'axios'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Alert, Card, Row, Col, Input, Button, message } from 'antd'
+import { DatePicker, Alert, Card, Row, Col, Input, Button, message } from 'antd'
 import cloudFunction from './service/cloudFunction'
 
 const { TextArea } = Input
@@ -13,13 +14,18 @@ class ReportForm extends Component {
     copied: false,
     reportData: '',
     isFetchDataError: false,
+    dateReport: moment().format("YYYY-MM-DD"),
   }
 
-  title = 'Dairy Report'
-  titleDairyReport = 'Jobthai Upgrade'
+  title = 'Daily Report'
+  titleDailyReport = 'Jobthai Upgrade'
 
   componentDidMount = () => {
-    cloudFunction.getDairyReport()
+    this.fetchDailyReport()
+  }
+
+  fetchDailyReport = () => {
+    cloudFunction.getDailyReport(this.state.dateReport)
       .then((response) => {
           const reportData = response.data
           this.setState({
@@ -33,22 +39,21 @@ class ReportForm extends Component {
       })
   }
 
-  reportFormat = (reportDairyObj) => {
-    const memberNameArray = Object.keys(reportDairyObj)
+  reportFormat = (reportDailyObj) => {
+    const memberNameArray = Object.keys(reportDailyObj)
     let reportString = `
-      ${this.titleDairyReport}
+      ${this.titleDailyReport} ${this.state.dateReport}
     `
     memberNameArray.forEach((name) => {
       reportString = `${reportString}
         ${name}
-          ${reportDairyObj[name].message}
+          ${reportDailyObj[name].message}
       `
     })
     return reportString
   }
 
   handleClick = () => {
-    console.log('test')
     this.setState({ isLoadingReport: false })
   }
 
@@ -73,12 +78,17 @@ class ReportForm extends Component {
     message.success('Copied');
   }
 
+  handleSelectDate = (date, dateString)  => {
+    this.setState({ dateReport: dateString })
+    this.fetchDailyReport()
+  }
+
   showResportData = () => {
     if (this.state.isFetchDataError) {
       return (
       <Alert
         message="Error"
-        description="Cannot get dairy report, Please try again."
+        description="Cannot get Daily report, Please try again."
         type="error"
         showIcon
       />)
@@ -86,16 +96,20 @@ class ReportForm extends Component {
 
     if (this.state.isEditReport) {
       return (
-        <Card loading={false} title={this.title}>
+        <Card loading={false} title={`${this.title} ${this.state.dateReport}`}>
+          <DatePicker onChange={this.handleSelectDate} defaultValue={moment()}/>
           <TextArea defaultValue={this.state.reportData} onChange={this.handleEdited} style={{ paddingLeft: '20px' }} autosize />
           <Button type="primary" onClick={this.handleSaveEdit} style={{ marginTop: 16 }}>Save</Button>
         </Card>
       )
     }
     return (
-      <Card loading={this.state.isLoadingReport} title={this.title} style={{ whiteSpace: 'pre-wrap', paddingLeft: '20px' }}>
-        {this.state.reportData}
-      </Card>
+      <div>
+        <DatePicker onChange={this.handleSelectDate} defaultValue={moment()} />
+        <Card loading={this.state.isLoadingReport} title={`${this.title} ${this.state.dateReport}`} style={{ whiteSpace: 'pre-wrap', paddingLeft: '20px' }}>
+          {this.state.reportData}
+        </Card>
+      </div>
     )
   }
 
