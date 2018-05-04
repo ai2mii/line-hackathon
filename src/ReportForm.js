@@ -1,17 +1,52 @@
 import React, { Component } from 'react'
+import axios from 'axios'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
-import { Card, Row, Col, Input, Button, message } from 'antd'
+import { Alert, Card, Row, Col, Input, Button, message } from 'antd'
+import thinknetLogo from './line-me.png'
+import cloudFunction from './service/cloudFunction'
+
 const { TextArea } = Input
 
 class ReportForm extends Component {
   state = {
-    isLoadingReport: false,
+    isLoadingReport: true,
     isEditReport: false,
     copied: false,
-    reportData: 'Jobthai Upgrade',
+    reportData: '',
+    isFetchDataError: false,
   }
 
   title = 'Dairy Report'
+  titleDairyReport = 'Jobthai Upgrade'
+
+  componentDidMount = () => {
+    cloudFunction.getDairyReport()
+      .then((response) => {
+          const reportData = response.data
+          this.setState({
+            reportData: this.reportFormat(reportData),
+            isLoadingReport: false,
+          })
+      })
+      .catch((err) => {
+        console.log(err)
+        this.setState({ isFetchDataError: true })
+      })
+  }
+
+  reportFormat = (reportDairyObj) => {
+    const memberNameArray = Object.keys(reportDairyObj)
+    let reportString = `
+      ${this.titleDairyReport}
+    `
+    memberNameArray.forEach((name) => {
+      reportString = `${reportString}
+        ${name}
+          ${reportDairyObj[name].message}
+      `
+    })
+    return reportString
+  }
 
   handleClick = () => {
     console.log('test')
@@ -40,6 +75,16 @@ class ReportForm extends Component {
   }
 
   showResportData = () => {
+    if (this.state.isFetchDataError) {
+      return (
+      <Alert
+        message="Error"
+        description="Cannot get dairy report, Please try again."
+        type="error"
+        showIcon
+      />)
+    }
+
     if (this.state.isEditReport) {
       return (
         <Card loading={false} title={this.title}>
@@ -58,7 +103,7 @@ class ReportForm extends Component {
   render() {
     return (
       <div>
-        <Row style={{ padding: '25px', minHeight: '600px' }}>
+        <Row style={{ padding: '25px', minHeight: '580px' }}>
           <Col span={4} />
           <Col span={16}>
             <Row>
@@ -88,7 +133,7 @@ class ReportForm extends Component {
             <Row>
               <Col span={21} />
               <Col span={3}>
-                <Button type="primary" style={{ background: 'green', borderColor: 'green' }}>Send to line</Button>
+                <Button type="primary" style={{ background: 'green', borderColor: 'green' }}>Send to LINE</Button>
               </Col>
             </Row>
           </Col>

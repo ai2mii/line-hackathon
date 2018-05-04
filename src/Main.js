@@ -16,7 +16,9 @@ class MainPage extends Component {
           <Content>
             <ReportForm />
           </Content>
-          <Footer style={{ background: 'white'}}></Footer>
+          <Footer style={{ background: 'white', textAlign: 'center'}}>
+            © THiNKNET Co., Ltd.
+          </Footer>
         </Layout>
       </div>
     );
