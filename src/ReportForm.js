@@ -21,11 +21,11 @@ class ReportForm extends Component {
   titleDailyReport = 'Jobthai Upgrade'
 
   componentDidMount = () => {
-    this.fetchDailyReport()
+    this.fetchDailyReport(this.state.dateReport)
   }
 
-  fetchDailyReport = () => {
-    cloudFunction.getDailyReport(this.state.dateReport)
+  fetchDailyReport = (dateReport) => {
+    cloudFunction.getDailyReport(dateReport)
       .then((response) => {
           const reportData = response.data
           this.setState({
@@ -80,10 +80,10 @@ class ReportForm extends Component {
 
   handleSelectDate = (date, dateString)  => {
     this.setState({ dateReport: dateString })
-    this.fetchDailyReport()
+    this.fetchDailyReport(dateString)
   }
 
-  showResportData = () => {
+  showReportData = () => {
     if (this.state.isFetchDataError) {
       return (
       <Alert
@@ -121,7 +121,7 @@ class ReportForm extends Component {
           <Col span={16}>
             <Row>
               <Col span={24}>
-                {this.showResportData()}
+                {this.showReportData()}
               </Col>
             </Row>
             <Row>
