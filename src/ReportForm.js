@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import axios from 'axios'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { Alert, Card, Row, Col, Input, Button, message } from 'antd'
-import thinknetLogo from './line-me.png'
 import cloudFunction from './service/cloudFunction'
 
 const { TextArea } = Input
